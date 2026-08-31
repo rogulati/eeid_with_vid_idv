@@ -1,0 +1,71 @@
+<%- include("partials/head", { title: "Get your loyalty card", user }) %>
+<section class="issuance-shell">
+  <div class="issuance-copy">
+    <p class="eyebrow">Northstar Loyalty</p>
+    <h1>Your card is<br><em>ready to accept.</em></h1>
+    <p><%= isMobile ? "Continue in Microsoft Authenticator to accept your card." : "Scan the QR code with Microsoft Authenticator to accept your card." %></p>
+    <% if (isMobile) { %>
+      <a class="button button-primary" data-deep-link href="<%= issuance.url %>">Open in Authenticator <span aria-hidden="true">→</span></a>
+    <% } %>
+    <div class="issuance-status" data-issuance-status hidden aria-live="polite">
+      <p class="eyebrow">Issuance status</p>
+      <h2 data-status-message></h2>
+    </div>
+    <div data-issued-actions hidden>
+      <p>Your Loyalty card is ready. Use it to receive 20% off a travel package to the United States, Europe, or Asia.</p>
+      <a class="button button-primary" href="/packages">Use Loyalty card for discounts <span aria-hidden="true">→</span></a>
+    </div>
+    <a class="text-link" data-profile-link href="/profile">Back to your profile</a>
+  </div>
+  <% if (!isMobile) { %>
+  <div class="qr-panel" data-qr-content>
+    <div>
+      <img src="<%= issuance.qrCode %>" alt="QR code for accepting the Northstar Loyalty card in Microsoft Authenticator">
+      <p>Use Microsoft Authenticator application to scan and accept this Loyalty card.</p>
+    </div>
+  </div>
+  <% } %>
+</section>
+<script>
+  (() => {
+    const statusContainer = document.querySelector("[data-issuance-status]");
+    const statusMessage = document.querySelector("[data-status-message]");
+    const qrContent = document.querySelector("[data-qr-content]");
+    const deepLink = document.querySelector("[data-deep-link]");
+    const issuedActions = document.querySelector("[data-issued-actions]");
+    const profileLink = document.querySelector("[data-profile-link]");
+    let statusCheck;
+
+    async function checkStatus() {
+      try {
+        const response = await fetch(`/api/verifiedid/issuance-status?id=<%= encodeURIComponent(issuance.state) %>`, {
+          headers: { accept: "application/json" },
+          cache: "no-store",
+        });
+        if (response.status === 204) return;
+        if (!response.ok) throw new Error("Status request failed");
+
+        const result = await response.json();
+        if (result.status === "request_retrieved") {
+          if (qrContent) qrContent.hidden = true;
+          if (deepLink) deepLink.hidden = true;
+        }
+        statusMessage.textContent = result.message;
+        statusContainer.hidden = false;
+        if (result.status === "issuance_successful") {
+          issuedActions.hidden = false;
+          profileLink.hidden = true;
+        }
+        if (result.status === "issuance_successful" || result.status === "issuance_error") {
+          clearInterval(statusCheck);
+        }
+      } catch (_error) {
+        clearInterval(statusCheck);
+      }
+    }
+
+    statusCheck = setInterval(checkStatus, 2000);
+    if (deepLink) window.location.assign(deepLink.href);
+  })();
+</script>
+<%- include("partials/foot") %>

@@ -1,0 +1,102 @@
+<%- include("partials/head", { title: "Your identity", user }) %>
+<section class="profile-shell">
+  <div class="profile-intro">
+    <p class="eyebrow">Signed in securely</p>
+    <h1>Welcome,<br><em><%= user.name %>.</em></h1>
+    <p class="profile-upn"><%= user.username %></p>
+    <details class="token-details">
+      <summary>Show ID token details</summary>
+      <div class="token-content">
+        <div class="token-heading">
+          <div><p class="eyebrow">OpenID Connect</p><h2>ID token</h2></div>
+          <button class="copy-button" type="button" data-copy-token aria-label="Copy ID token" title="Copy ID token">Copy</button>
+        </div>
+        <p class="warning">Demo only: an ID token contains identity claims. Do not log it or expose it in a production UI.</p>
+        <pre id="id-token"><code><%= user.idToken %></code></pre>
+        <h3>Decoded claims</h3>
+        <pre><code><%= JSON.stringify(user.claims, null, 2) %></code></pre>
+      </div>
+    </details>
+  </div>
+  <aside class="loyalty-panel">
+    <div class="loyalty-card-preview" aria-hidden="true">
+      <span>Northstar</span>
+      <strong>Loyalty</strong>
+      <small>Member card</small>
+    </div>
+    <p class="eyebrow">Northstar Loyalty</p>
+    <h2>Keep the benefits close.</h2>
+    <p>Accept your digital Loyalty card to access member benefits across the Northstar travel application.</p>
+    <form action="/loyalty/issue" method="post">
+      <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
+      <button class="button button-primary" type="submit">Get a card <span aria-hidden="true">→</span></button>
+    </form>
+  </aside>
+</section>
+<section id="identity-proof" class="identity-proof-shell" aria-labelledby="identity-proof-heading">
+  <header class="identity-proof-heading">
+    <p class="eyebrow">Government identity proof</p>
+    <h2 id="identity-proof-heading">Update your profile records for faster travel bookings.</h2>
+    <p>Verify with a government ID document, then present the resulting digital credential to Northstar.</p>
+    <% if (identityVerified && identityExpirationDate) { %>
+      <div class="identity-record-status <%= identityExpired ? "is-expired" : "" %>">
+        <p><strong><%= identityExpired ? "Verified Identity expired" : "Verified Identity on file" %></strong></p>
+        <p><%= identityExpired ? "Expired" : "Expires" %> <time datetime="<%= identityExpirationDate.toISOString() %>"><%= identityExpirationDate.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) %></time></p>
+        <form action="/identity/reset" method="post">
+          <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
+          <button class="button button-secondary" type="submit">Update identity</button>
+        </form>
+      </div>
+    <% } %>
+  </header>
+  <ol class="identity-steps">
+    <li class="identity-step <%= trueIdentityComplete || identityVerified ? "is-complete" : "is-active" %>">
+      <span class="step-number" aria-hidden="true"><%= trueIdentityComplete || identityVerified ? "✓" : "1" %></span>
+      <p class="eyebrow">Step 1</p>
+      <h3>Verify your government document</h3>
+      <p>True Identity guides you through a private document and selfie check.</p>
+      <% if (!trueIdentityComplete && !identityVerified) { %>
+        <a class="button button-secondary" href="/identity/verify">Verify with True Identity <span aria-hidden="true">↗</span></a>
+        <form action="/identity/verified" method="post" class="verified-continuation">
+          <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
+          <button type="submit">I have been verified <span aria-hidden="true">&gt;</span></button>
+        </form>
+      <% } else { %>
+        <span class="step-status">Document check complete</span>
+      <% } %>
+    </li>
+    <li class="identity-step <%= identityVerified ? "is-complete" : trueIdentityComplete ? "is-active" : "is-locked" %>">
+      <span class="step-number" aria-hidden="true"><%= identityVerified ? "✓" : "2" %></span>
+      <p class="eyebrow">Step 2</p>
+      <h3>Confirm your identity card</h3>
+      <p><%= trueIdentityComplete || identityVerified ? "Your Verified Identity card is ready in Microsoft Authenticator." : "Return here after True Identity issues your digital identity card." %></p>
+      <div class="verified-identity-card" role="img" aria-label="Verified Identity digital credential preview">
+        <span class="credential-avatar" aria-hidden="true">✓</span>
+        <strong>Verified Identity</strong>
+        <small>Verified IDV</small>
+      </div>
+      <% if (trueIdentityComplete || identityVerified) { %><span class="step-status">Card received</span><% } %>
+    </li>
+    <li id="identity-step-3" class="identity-step <%= identityVerified ? "is-complete" : trueIdentityComplete ? "is-active" : "is-locked" %>">
+      <span class="step-number" aria-hidden="true"><%= identityVerified ? "✓" : "3" %></span>
+      <p class="eyebrow">Step 3</p>
+      <h3>Present to Northstar</h3>
+      <p>Share your <strong>VerifiedIdentity</strong> and <strong>NorthstarLoyalty</strong> credentials to complete identity proofing.</p>
+      <% if (identityVerified) { %>
+        <span class="step-status">Identity verified</span>
+      <% } else if (trueIdentityComplete) { %>
+        <form action="/identity/present" method="post">
+          <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
+          <button class="button button-primary" type="submit">Present both credentials <span aria-hidden="true">→</span></button>
+        </form>
+      <% } %>
+    </li>
+  </ol>
+</section>
+<script>
+  document.querySelector("[data-copy-token]")?.addEventListener("click", async (event) => {
+    await navigator.clipboard.writeText(document.querySelector("#id-token code").textContent);
+    event.currentTarget.textContent = "Copied";
+  });
+</script>
+<%- include("partials/foot") %>

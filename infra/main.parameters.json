@@ -1,0 +1,42 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "appName": {
+      "value": "your-globally-unique-app-name"
+    },
+    "entraTenantId": {
+      "value": "00000000-0000-0000-0000-000000000000"
+    },
+    "entraTenantSubdomain": {
+      "value": "your-external-tenant"
+    },
+    "entraClientId": {
+      "value": "00000000-0000-0000-0000-000000000000"
+    },
+    "entraClientSecret": {
+      "value": "REPLACE_WITH_CLIENT_SECRET"
+    },
+    "verifiedIdAuthority": {
+      "value": "did:web:verifiedid.entra.microsoft.com:tenant-id:authority-id"
+    },
+    "verifiedIdManifest": {
+      "value": "https://verifiedid.did.msidentity.com/v1.0/tenants/tenant-id/verifiableCredentials/contracts/contract-id/manifest"
+    },
+    "graphIsVerifiedAttribute": {
+      "value": "extension_appid_isVerified"
+    },
+    "graphLoyaltyAttribute": {
+      "value": "extension_appid_loyalty"
+    },
+    "graphVerifiedIdExpirationAttribute": {
+      "value": "extension_appid_VerifiedIDExpirationDate"
+    },
+    "sessionSecret": {
+      "value": "REPLACE_WITH_RANDOM_VALUE_AT_LEAST_32_CHARACTERS"
+    },
+    "verifiedIdCallbackApiKey": {
+      "value": "REPLACE_WITH_RANDOM_VALUE_AT_LEAST_32_CHARACTERS"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+<%- include("partials/head", { title: "My trips", user }) %>
+<section class="trips-shell">
+  <header class="catalog-heading">
+    <p class="eyebrow"><%= confirmed ? "Purchase confirmed" : "Your journeys" %></p>
+    <h1><%= confirmed ? "Your trip is" : "See what's" %><br><em><%= confirmed ? "booked." : "ahead." %></em></h1>
+    <% if (confirmed) { %><p>Your loyalty discount was applied and your reservation is complete.</p><% } %>
+  </header>
+  <% if (trips.length === 0) { %>
+    <div class="empty-state">
+      <h2>No trips booked yet.</h2>
+      <p>Explore Northstar packages and use your Loyalty card to save 20%.</p>
+      <a class="button button-primary" href="/packages">Browse packages</a>
+    </div>
+  <% } else { %>
+    <div class="trip-list">
+      <% trips.forEach((trip) => { %>
+        <article class="trip-item">
+          <img src="<%= trip.image %>" alt="<%= trip.region %> travel destination">
+          <div>
+            <p class="eyebrow"><%= trip.region %> · <%= trip.duration %></p>
+            <h2><%= trip.title %></h2>
+            <p>Confirmation <strong><%= trip.confirmation %></strong></p>
+          </div>
+          <div class="trip-price"><span>Paid with 20% Loyalty discount</span><strong>$<%= trip.paidPrice.toLocaleString("en-US") %></strong></div>
+        </article>
+      <% }) %>
+    </div>
+  <% } %>
+</section>
+<%- include("partials/foot") %>

@@ -1,0 +1,21 @@
+<%- include("partials/head", { title: "Confirm your trip", user }) %>
+<section class="checkout-shell">
+  <div class="checkout-image">
+    <img src="<%= travelPackage.image %>" alt="<%= travelPackage.region %> travel destination">
+  </div>
+  <div class="checkout-summary">
+    <p class="eyebrow">Discount applied</p>
+    <h1>Your member<br><em>price is ready.</em></h1>
+    <p>Your Northstar Loyalty card was verified. Review the package and complete your purchase.</p>
+    <dl class="price-summary">
+      <div><dt><%= travelPackage.title %></dt><dd>$<%= travelPackage.price.toLocaleString("en-US") %></dd></div>
+      <div class="discount-row"><dt>Loyalty discount (20%)</dt><dd>−$<%= (travelPackage.price - discountedPrice).toLocaleString("en-US") %></dd></div>
+      <div class="total-row"><dt>Total</dt><dd>$<%= discountedPrice.toLocaleString("en-US") %></dd></div>
+    </dl>
+    <form action="/checkout/<%= travelPackage.id %>/complete" method="post">
+      <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
+      <button class="button button-primary" type="submit">Complete purchase <span aria-hidden="true">→</span></button>
+    </form>
+  </div>
+</section>
+<%- include("partials/foot") %>

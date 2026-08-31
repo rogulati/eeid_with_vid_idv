@@ -1,0 +1,29 @@
+<%- include("partials/head", { title: "Plan your next story", user }) %>
+<section class="hero">
+  <div class="hero-copy">
+    <p class="eyebrow">Your next story starts here</p>
+    <% if (user) { %>
+      <h1>Welcome back,<br><em><%= user.name %>.</em></h1>
+      <p>Ideas saved, bags nearly packed. Your next escape is waiting.</p>
+      <a class="button button-primary" href="/profile">View your identity <span aria-hidden="true">→</span></a>
+    <% } else { %>
+      <h1>Travel plans<br>with room to<br><em>wander.</em></h1>
+      <p>Collect ideas, shape an itinerary, and keep every detail of your next escape in one calm place.</p>
+      <a class="button button-primary" href="/auth/signin">Sign in or sign up <span aria-hidden="true">→</span></a>
+    <% } %>
+  </div>
+  <figure class="hero-image">
+    <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=85" alt="A traveler looking across a mountain valley at sunrise">
+    <figcaption><span>Field note 01</span> Find your way beyond the familiar.</figcaption>
+  </figure>
+</section>
+<section class="discover" id="discover">
+  <p class="eyebrow">Worth the detour</p>
+  <h2>Three places, a thousand possible stories.</h2>
+  <div class="destination-grid">
+    <article><span>01</span><h3>Madeira</h3><p>Clifftop paths and Atlantic mornings.</p></article>
+    <article><span>02</span><h3>Kyoto</h3><p>Quiet lanes, old timber, late light.</p></article>
+    <article><span>03</span><h3>Patagonia</h3><p>Long horizons and weather worth earning.</p></article>
+  </div>
+</section>
+<%- include("partials/foot") %>

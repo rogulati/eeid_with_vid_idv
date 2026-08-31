@@ -1,0 +1,216 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+  "handler": "Microsoft.Azure.CreateUIDef",
+  "version": "0.1.2-preview",
+  "parameters": {
+    "config": {
+      "isWizard": true,
+      "basics": {
+        "description": "**External ID with Verified ID IDV**\n\nDeploys the Northstar Node.js demo to Azure App Service and configures Microsoft Entra External ID, Verified ID presentation callbacks, and Microsoft Graph extension attributes. Application code is deployed from the public GitHub repository."
+      }
+    },
+    "basics": [
+      {
+        "name": "appName",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Web app name",
+        "toolTip": "Globally unique name used for <name>.azurewebsites.net.",
+        "constraints": {
+          "required": true,
+          "regex": "^[a-z0-9][a-z0-9-]{0,58}[a-z0-9]$",
+          "validationMessage": "Use 2-60 lowercase letters, numbers, or hyphens; start and end with a letter or number."
+        }
+      },
+      {
+        "name": "appServicePlanSku",
+        "type": "Microsoft.Common.DropDown",
+        "label": "App Service plan",
+        "defaultValue": "Basic B1",
+        "toolTip": "B1 supports Always On and is recommended for Verified ID callbacks. F1 can experience cold starts.",
+        "constraints": {
+          "allowedValues": [
+            { "label": "Free F1", "value": "F1" },
+            { "label": "Basic B1", "value": "B1" }
+          ],
+          "required": true
+        }
+      }
+    ],
+    "steps": [
+      {
+        "name": "entra",
+        "label": "External ID application",
+        "elements": [
+          {
+            "name": "entraTenantId",
+            "type": "Microsoft.Common.TextBox",
+            "label": "External ID tenant ID",
+            "constraints": {
+              "required": true,
+              "regex": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+              "validationMessage": "Enter a tenant GUID."
+            }
+          },
+          {
+            "name": "entraTenantSubdomain",
+            "type": "Microsoft.Common.TextBox",
+            "label": "External ID tenant subdomain",
+            "toolTip": "The value before .onmicrosoft.com, for example contosoext.",
+            "constraints": {
+              "required": true,
+              "regex": "^[A-Za-z0-9-]+$",
+              "validationMessage": "Enter only the tenant subdomain."
+            }
+          },
+          {
+            "name": "entraClientId",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Application client ID",
+            "constraints": {
+              "required": true,
+              "regex": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+              "validationMessage": "Enter an application client ID GUID."
+            }
+          },
+          {
+            "name": "entraClientSecret",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "Application client secret",
+              "confirmPassword": "Confirm client secret"
+            },
+            "constraints": { "required": true }
+          }
+        ]
+      },
+      {
+        "name": "verifiedId",
+        "label": "Verified ID",
+        "elements": [
+          {
+            "name": "verifiedIdAuthority",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Verifier authority DID",
+            "toolTip": "The did:web authority configured for Verified ID.",
+            "constraints": {
+              "required": true,
+              "regex": "^did:web:.+$",
+              "validationMessage": "Enter a did:web authority."
+            }
+          },
+          {
+            "name": "verifiedIdManifest",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Loyalty credential manifest URL",
+            "constraints": {
+              "required": true,
+              "regex": "^https://.+/manifest$",
+              "validationMessage": "Enter an HTTPS Verified ID manifest URL."
+            }
+          },
+          {
+            "name": "verifiedIdType",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Loyalty credential type",
+            "defaultValue": "NorthstarLoyalty",
+            "constraints": { "required": true }
+          },
+          {
+            "name": "verifiedIdCallbackApiKey",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "Callback API key (minimum 32 characters)",
+              "confirmPassword": "Confirm callback API key"
+            },
+            "constraints": { "required": true }
+          }
+        ]
+      },
+      {
+        "name": "graph",
+        "label": "Graph extension attributes",
+        "elements": [
+          {
+            "name": "graphInfo",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": true,
+            "options": {
+              "icon": "Info",
+              "text": "Use the exact Microsoft Graph names of the External ID custom attributes. Extension names normally use a single underscore between the application ID prefix and attribute name."
+            }
+          },
+          {
+            "name": "graphIsVerifiedAttribute",
+            "type": "Microsoft.Common.TextBox",
+            "label": "isVerified attribute",
+            "constraints": { "required": true }
+          },
+          {
+            "name": "graphLoyaltyAttribute",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Loyalty attribute",
+            "constraints": { "required": true }
+          },
+          {
+            "name": "graphVerifiedIdExpirationAttribute",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Verified ID expiration attribute",
+            "constraints": { "required": true }
+          },
+          {
+            "name": "sessionSecret",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "Session secret (minimum 32 characters)",
+              "confirmPassword": "Confirm session secret"
+            },
+            "constraints": { "required": true }
+          }
+        ]
+      },
+      {
+        "name": "advanced",
+        "label": "Source deployment",
+        "elements": [
+          {
+            "name": "repoUrl",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Source repository URL",
+            "defaultValue": "https://github.com/rogulati/eeid_with_vid_idv.git",
+            "constraints": {
+              "required": true,
+              "regex": "^https://.+\\.git$",
+              "validationMessage": "Enter an HTTPS Git URL ending in .git."
+            }
+          },
+          {
+            "name": "branch",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Branch",
+            "defaultValue": "main",
+            "constraints": { "required": true }
+          }
+        ]
+      }
+    ],
+    "outputs": {
+      "location": "[location()]",
+      "appName": "[basics('appName')]",
+      "appServicePlanSku": "[basics('appServicePlanSku')]",
+      "entraTenantId": "[steps('entra').entraTenantId]",
+      "entraTenantSubdomain": "[steps('entra').entraTenantSubdomain]",
+      "entraClientId": "[steps('entra').entraClientId]",
+      "entraClientSecret": "[steps('entra').entraClientSecret]",
+      "verifiedIdAuthority": "[steps('verifiedId').verifiedIdAuthority]",
+      "verifiedIdManifest": "[steps('verifiedId').verifiedIdManifest]",
+      "verifiedIdType": "[steps('verifiedId').verifiedIdType]",
+      "verifiedIdCallbackApiKey": "[steps('verifiedId').verifiedIdCallbackApiKey]",
+      "graphIsVerifiedAttribute": "[steps('graph').graphIsVerifiedAttribute]",
+      "graphLoyaltyAttribute": "[steps('graph').graphLoyaltyAttribute]",
+      "graphVerifiedIdExpirationAttribute": "[steps('graph').graphVerifiedIdExpirationAttribute]",
+      "sessionSecret": "[steps('graph').sessionSecret]",
+      "repoUrl": "[steps('advanced').repoUrl]",
+      "branch": "[steps('advanced').branch]"
+    }
+  }
+}

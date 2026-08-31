@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    (() => {
+      const param = new URLSearchParams(window.location.search).get("clawpilotTheme");
+      const theme =
+        param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <title><%= title %> | Northstar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Northstar home"><span class="brand-mark">✦</span>Northstar</a>
+    <nav aria-label="Primary navigation">
+      <a href="<%= user ? "/packages" : "/#discover" %>">Discover</a>
+      <% if (user) { %>
+        <a href="/profile">Identity</a>
+        <a href="/trips">My trips <span class="trip-count"><%= tripCount %></span></a>
+        <form action="/auth/signout" method="post"><button class="button button-secondary" type="submit">Sign out</button></form>
+      <% } else { %>
+        <a href="/#discover">My trips <span class="trip-count">0</span></a>
+        <a class="button button-secondary" href="/auth/signin">Sign in</a>
+      <% } %>
+    </nav>
+  </header>
+  <main>

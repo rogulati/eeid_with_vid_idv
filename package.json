@@ -1,0 +1,26 @@
+{
+  "name": "eeid-with-vid-idv",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Microsoft Entra External ID and Verified ID identity verification demo",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@azure/msal-node": "^5.6.0",
+    "dotenv": "^17.2.2",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "helmet": "^8.1.0"
+  },
+  "devDependencies": {
+    "supertest": "^7.1.4"
+  }
+}

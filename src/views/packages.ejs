@@ -1,0 +1,28 @@
+<%- include("partials/head", { title: "Travel packages", user }) %>
+<section class="catalog-shell">
+  <header class="catalog-heading">
+    <p class="eyebrow">Loyalty journeys</p>
+    <h1>Choose where<br><em>Northstar takes you.</em></h1>
+    <p>Select a package, present your Northstar Loyalty card, and receive 20% off.</p>
+  </header>
+  <div class="package-grid">
+    <% packages.forEach((travelPackage) => { %>
+      <article class="package-card">
+        <img src="<%= travelPackage.image %>" alt="<%= travelPackage.region %> travel destination">
+        <div class="package-card-body">
+          <div class="package-meta"><span><%= travelPackage.region %></span><span><%= travelPackage.duration %></span></div>
+          <h2><%= travelPackage.title %></h2>
+          <p><%= travelPackage.description %></p>
+          <div class="package-action">
+            <strong>$<%= travelPackage.price.toLocaleString("en-US") %></strong>
+            <form action="/packages/<%= travelPackage.id %>/verify" method="post">
+              <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
+              <button class="button button-primary" type="submit">Select package <span aria-hidden="true">→</span></button>
+            </form>
+          </div>
+        </div>
+      </article>
+    <% }) %>
+  </div>
+</section>
+<%- include("partials/foot") %>

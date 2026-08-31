@@ -1,0 +1,483 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.43.8.12551",
+      "templateHash": "15323267172036885736"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Azure region for all resources."
+      }
+    },
+    "appName": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 60,
+      "metadata": {
+        "description": "Globally unique App Service web app name."
+      }
+    },
+    "appServicePlanSku": {
+      "type": "string",
+      "defaultValue": "B1",
+      "allowedValues": [
+        "F1",
+        "B1"
+      ],
+      "metadata": {
+        "description": "App Service plan SKU. B1 is recommended to avoid cold starts."
+      }
+    },
+    "entraTenantId": {
+      "type": "string",
+      "metadata": {
+        "description": "Microsoft Entra External ID tenant ID."
+      }
+    },
+    "entraTenantSubdomain": {
+      "type": "string",
+      "metadata": {
+        "description": "Microsoft Entra External ID tenant subdomain, without .onmicrosoft.com."
+      }
+    },
+    "entraClientId": {
+      "type": "string",
+      "metadata": {
+        "description": "Microsoft Entra External ID application client ID."
+      }
+    },
+    "entraClientSecret": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Microsoft Entra External ID application client secret."
+      }
+    },
+    "verifiedIdAuthority": {
+      "type": "string",
+      "metadata": {
+        "description": "Verified ID authority DID used to create presentation and issuance requests."
+      }
+    },
+    "verifiedIdManifest": {
+      "type": "string",
+      "metadata": {
+        "description": "Verified ID credential manifest URL for the loyalty credential."
+      }
+    },
+    "verifiedIdType": {
+      "type": "string",
+      "defaultValue": "NorthstarLoyalty",
+      "metadata": {
+        "description": "Verified ID loyalty credential type."
+      }
+    },
+    "graphIsVerifiedAttribute": {
+      "type": "string",
+      "metadata": {
+        "description": "Microsoft Graph property name for the External ID isVerified custom attribute."
+      }
+    },
+    "graphLoyaltyAttribute": {
+      "type": "string",
+      "metadata": {
+        "description": "Microsoft Graph property name for the External ID loyalty custom attribute."
+      }
+    },
+    "graphVerifiedIdExpirationAttribute": {
+      "type": "string",
+      "metadata": {
+        "description": "Microsoft Graph property name for the External ID Verified ID expiration custom attribute."
+      }
+    },
+    "sessionSecret": {
+      "type": "securestring",
+      "minLength": 32,
+      "metadata": {
+        "description": "Random value used by Express to sign session cookies."
+      }
+    },
+    "verifiedIdCallbackApiKey": {
+      "type": "securestring",
+      "minLength": 32,
+      "metadata": {
+        "description": "Random API key used to authenticate Verified ID callback events."
+      }
+    },
+    "repoUrl": {
+      "type": "string",
+      "defaultValue": "https://github.com/rogulati/eeid_with_vid_idv.git",
+      "metadata": {
+        "description": "Public Git repository from which App Service deploys the application."
+      }
+    },
+    "branch": {
+      "type": "string",
+      "defaultValue": "main",
+      "metadata": {
+        "description": "Git branch to deploy."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "northstar-webapp",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "appName": {
+            "value": "[parameters('appName')]"
+          },
+          "appServicePlanSku": {
+            "value": "[parameters('appServicePlanSku')]"
+          },
+          "branch": {
+            "value": "[parameters('branch')]"
+          },
+          "entraClientId": {
+            "value": "[parameters('entraClientId')]"
+          },
+          "entraClientSecret": {
+            "value": "[parameters('entraClientSecret')]"
+          },
+          "entraTenantId": {
+            "value": "[parameters('entraTenantId')]"
+          },
+          "entraTenantSubdomain": {
+            "value": "[parameters('entraTenantSubdomain')]"
+          },
+          "graphIsVerifiedAttribute": {
+            "value": "[parameters('graphIsVerifiedAttribute')]"
+          },
+          "graphLoyaltyAttribute": {
+            "value": "[parameters('graphLoyaltyAttribute')]"
+          },
+          "graphVerifiedIdExpirationAttribute": {
+            "value": "[parameters('graphVerifiedIdExpirationAttribute')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "repoUrl": {
+            "value": "[parameters('repoUrl')]"
+          },
+          "sessionSecret": {
+            "value": "[parameters('sessionSecret')]"
+          },
+          "verifiedIdAuthority": {
+            "value": "[parameters('verifiedIdAuthority')]"
+          },
+          "verifiedIdCallbackApiKey": {
+            "value": "[parameters('verifiedIdCallbackApiKey')]"
+          },
+          "verifiedIdManifest": {
+            "value": "[parameters('verifiedIdManifest')]"
+          },
+          "verifiedIdType": {
+            "value": "[parameters('verifiedIdType')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.43.8.12551",
+              "templateHash": "9321854580401747023"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Azure region for all resources."
+              }
+            },
+            "appName": {
+              "type": "string",
+              "metadata": {
+                "description": "Globally unique App Service web app name."
+              }
+            },
+            "appServicePlanSku": {
+              "type": "string",
+              "metadata": {
+                "description": "App Service plan SKU."
+              }
+            },
+            "entraTenantId": {
+              "type": "string",
+              "metadata": {
+                "description": "Microsoft Entra External ID tenant ID."
+              }
+            },
+            "entraTenantSubdomain": {
+              "type": "string",
+              "metadata": {
+                "description": "Microsoft Entra External ID tenant subdomain."
+              }
+            },
+            "entraClientId": {
+              "type": "string",
+              "metadata": {
+                "description": "Microsoft Entra External ID application client ID."
+              }
+            },
+            "verifiedIdAuthority": {
+              "type": "string",
+              "metadata": {
+                "description": "Verified ID authority DID."
+              }
+            },
+            "verifiedIdManifest": {
+              "type": "string",
+              "metadata": {
+                "description": "Verified ID credential manifest URL."
+              }
+            },
+            "verifiedIdType": {
+              "type": "string",
+              "metadata": {
+                "description": "Verified ID loyalty credential type."
+              }
+            },
+            "graphIsVerifiedAttribute": {
+              "type": "string",
+              "metadata": {
+                "description": "Microsoft Graph property name for the External ID isVerified custom attribute."
+              }
+            },
+            "graphLoyaltyAttribute": {
+              "type": "string",
+              "metadata": {
+                "description": "Microsoft Graph property name for the External ID loyalty custom attribute."
+              }
+            },
+            "graphVerifiedIdExpirationAttribute": {
+              "type": "string",
+              "metadata": {
+                "description": "Microsoft Graph property name for the External ID Verified ID expiration custom attribute."
+              }
+            },
+            "entraClientSecret": {
+              "type": "securestring",
+              "metadata": {
+                "description": "Microsoft Entra External ID application client secret."
+              }
+            },
+            "sessionSecret": {
+              "type": "securestring",
+              "metadata": {
+                "description": "Random value used by Express to sign session cookies."
+              }
+            },
+            "verifiedIdCallbackApiKey": {
+              "type": "securestring",
+              "metadata": {
+                "description": "Random API key used to authenticate Verified ID callback events."
+              }
+            },
+            "repoUrl": {
+              "type": "string",
+              "metadata": {
+                "description": "Public Git repository from which App Service deploys the application."
+              }
+            },
+            "branch": {
+              "type": "string",
+              "metadata": {
+                "description": "Git branch to deploy."
+              }
+            }
+          },
+          "variables": {
+            "planName": "[format('{0}-plan', parameters('appName'))]",
+            "appHost": "[format('{0}.azurewebsites.net', parameters('appName'))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Web/serverfarms",
+              "apiVersion": "2024-11-01",
+              "name": "[variables('planName')]",
+              "location": "[parameters('location')]",
+              "kind": "linux",
+              "sku": {
+                "name": "[parameters('appServicePlanSku')]"
+              },
+              "properties": {
+                "reserved": true
+              }
+            },
+            {
+              "type": "Microsoft.Web/sites",
+              "apiVersion": "2024-11-01",
+              "name": "[parameters('appName')]",
+              "location": "[parameters('location')]",
+              "kind": "app,linux",
+              "identity": {
+                "type": "SystemAssigned"
+              },
+              "properties": {
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('planName'))]",
+                "httpsOnly": true,
+                "clientAffinityEnabled": true,
+                "publicNetworkAccess": "Enabled",
+                "siteConfig": {
+                  "alwaysOn": "[not(equals(parameters('appServicePlanSku'), 'F1'))]",
+                  "appCommandLine": "npm start",
+                  "ftpsState": "Disabled",
+                  "healthCheckPath": "/health",
+                  "http20Enabled": true,
+                  "linuxFxVersion": "NODE|22-lts",
+                  "minTlsVersion": "1.2",
+                  "appSettings": [
+                    {
+                      "name": "NODE_ENV",
+                      "value": "production"
+                    },
+                    {
+                      "name": "SCM_DO_BUILD_DURING_DEPLOYMENT",
+                      "value": "true"
+                    },
+                    {
+                      "name": "ENTRA_TENANT_ID",
+                      "value": "[parameters('entraTenantId')]"
+                    },
+                    {
+                      "name": "ENTRA_TENANT_SUBDOMAIN",
+                      "value": "[parameters('entraTenantSubdomain')]"
+                    },
+                    {
+                      "name": "ENTRA_CLIENT_ID",
+                      "value": "[parameters('entraClientId')]"
+                    },
+                    {
+                      "name": "ENTRA_CLIENT_SECRET",
+                      "value": "[parameters('entraClientSecret')]"
+                    },
+                    {
+                      "name": "ENTRA_REDIRECT_URI",
+                      "value": "[format('https://{0}/auth/redirect', variables('appHost'))]"
+                    },
+                    {
+                      "name": "GRAPH_IS_VERIFIED_ATTRIBUTE",
+                      "value": "[parameters('graphIsVerifiedAttribute')]"
+                    },
+                    {
+                      "name": "GRAPH_LOYALTY_ATTRIBUTE",
+                      "value": "[parameters('graphLoyaltyAttribute')]"
+                    },
+                    {
+                      "name": "GRAPH_VERIFIED_ID_EXPIRATION_ATTRIBUTE",
+                      "value": "[parameters('graphVerifiedIdExpirationAttribute')]"
+                    },
+                    {
+                      "name": "SESSION_SECRET",
+                      "value": "[parameters('sessionSecret')]"
+                    },
+                    {
+                      "name": "VERIFIED_ID_AUTHORITY",
+                      "value": "[parameters('verifiedIdAuthority')]"
+                    },
+                    {
+                      "name": "VERIFIED_ID_CALLBACK_API_KEY",
+                      "value": "[parameters('verifiedIdCallbackApiKey')]"
+                    },
+                    {
+                      "name": "VERIFIED_ID_MANIFEST",
+                      "value": "[parameters('verifiedIdManifest')]"
+                    },
+                    {
+                      "name": "VERIFIED_ID_TYPE",
+                      "value": "[parameters('verifiedIdType')]"
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', variables('planName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Web/sites/config",
+              "apiVersion": "2024-11-01",
+              "name": "[format('{0}/{1}', parameters('appName'), 'logs')]",
+              "properties": {
+                "applicationLogs": {
+                  "fileSystem": {
+                    "level": "Information"
+                  }
+                },
+                "httpLogs": {
+                  "fileSystem": {
+                    "enabled": true,
+                    "retentionInDays": 3,
+                    "retentionInMb": 25
+                  }
+                },
+                "failedRequestsTracing": {
+                  "enabled": true
+                },
+                "detailedErrorMessages": {
+                  "enabled": true
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('appName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Web/sites/sourcecontrols",
+              "apiVersion": "2022-09-01",
+              "name": "[format('{0}/{1}', parameters('appName'), 'web')]",
+              "properties": {
+                "repoUrl": "[parameters('repoUrl')]",
+                "branch": "[parameters('branch')]",
+                "isManualIntegration": true
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('appName'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "appUrl": {
+              "type": "string",
+              "value": "[format('https://{0}', variables('appHost'))]"
+            },
+            "redirectUri": {
+              "type": "string",
+              "value": "[format('https://{0}/auth/redirect', variables('appHost'))]"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "appName": {
+      "type": "string",
+      "value": "[parameters('appName')]"
+    },
+    "appUrl": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'northstar-webapp'), '2025-04-01').outputs.appUrl.value]"
+    },
+    "redirectUri": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'northstar-webapp'), '2025-04-01').outputs.redirectUri.value]"
+    }
+  }
+}

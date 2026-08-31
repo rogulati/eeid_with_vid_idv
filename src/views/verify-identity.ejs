@@ -1,0 +1,61 @@
+<%- include("partials/head", { title: "Present your verified identity", user }) %>
+<section class="issuance-shell">
+  <div class="issuance-copy">
+    <p class="eyebrow">Step 3 · Present both credentials</p>
+    <h1>Present <em>identity and loyalty.</em></h1>
+    <p>Use Microsoft Authenticator to present your <strong>VerifiedIdentity</strong> and <strong>NorthstarLoyalty</strong> credentials together.</p>
+    <% if (isMobile) { %>
+      <a class="button button-primary" data-deep-link href="<%= presentation.url %>">Open in Authenticator <span aria-hidden="true">→</span></a>
+    <% } %>
+    <div class="issuance-status" data-presentation-status hidden aria-live="polite">
+      <p class="eyebrow">Verification status</p>
+      <h2 data-status-message></h2>
+    </div>
+    <a class="text-link" href="/profile">Back to your identity</a>
+  </div>
+  <% if (!isMobile) { %>
+    <div class="qr-panel" data-qr-content>
+      <img src="<%= presentation.qrCode %>" alt="QR code for presenting VerifiedIdentity and NorthstarLoyalty credentials in Microsoft Authenticator">
+      <p>Scan with Microsoft Authenticator and consent to share both credentials.</p>
+    </div>
+  <% } %>
+</section>
+<script>
+  (() => {
+    const statusContainer = document.querySelector("[data-presentation-status]");
+    const statusMessage = document.querySelector("[data-status-message]");
+    const qrContent = document.querySelector("[data-qr-content]");
+    const deepLink = document.querySelector("[data-deep-link]");
+    let statusCheck;
+
+    async function checkStatus() {
+      try {
+        const response = await fetch(`/api/verifiedid/presentation-status?id=<%= encodeURIComponent(presentation.state) %>`, {
+          headers: { accept: "application/json" },
+          cache: "no-store",
+        });
+        if (response.status === 204) return;
+        if (!response.ok) throw new Error("Status request failed");
+        const result = await response.json();
+        if (result.status === "request_retrieved") {
+          if (qrContent) qrContent.hidden = true;
+          if (deepLink) deepLink.hidden = true;
+        }
+        statusMessage.textContent = result.message;
+        statusContainer.hidden = false;
+        if (result.status === "presentation_verified") {
+          clearInterval(statusCheck);
+          window.location.assign(result.continueUrl);
+        } else if (result.status === "presentation_error") {
+          clearInterval(statusCheck);
+        }
+      } catch (_error) {
+        clearInterval(statusCheck);
+      }
+    }
+
+    statusCheck = setInterval(checkStatus, 2000);
+    if (deepLink) window.location.assign(deepLink.href);
+  })();
+</script>
+<%- include("partials/foot") %>
