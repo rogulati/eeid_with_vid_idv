@@ -36,6 +36,8 @@ sequenceDiagram
 	Northstar-->>User: Identity verified
 ```
 
+For the government-document proofing flow, trust boundaries, claim mapping, and the complete issuance-to-presentation sequence, see [Government ID and IDV integration](docs/idv-integration/README.md).
+
 ## Prerequisites
 
 - An Azure subscription with permission to create App Service resources.
