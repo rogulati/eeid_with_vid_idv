@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.43.8.12551",
-      "templateHash": "15323267172036885736"
+      "templateHash": "11883813584349519278"
     }
   },
   "parameters": {
@@ -96,6 +96,27 @@
         "description": "Microsoft Graph property name for the External ID Verified ID expiration custom attribute."
       }
     },
+    "ciamStoreEventUrl": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Optional CIAM Store signup event endpoint."
+      }
+    },
+    "ciamStoreConnectionId": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Optional CIAM Store connection identifier for this travel application."
+      }
+    },
+    "ciamStoreEventSecret": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Optional shared secret used to sign CIAM Store signup events."
+      }
+    },
     "sessionSecret": {
       "type": "securestring",
       "minLength": 32,
@@ -144,6 +165,15 @@
           },
           "branch": {
             "value": "[parameters('branch')]"
+          },
+          "ciamStoreConnectionId": {
+            "value": "[parameters('ciamStoreConnectionId')]"
+          },
+          "ciamStoreEventSecret": {
+            "value": "[parameters('ciamStoreEventSecret')]"
+          },
+          "ciamStoreEventUrl": {
+            "value": "[parameters('ciamStoreEventUrl')]"
           },
           "entraClientId": {
             "value": "[parameters('entraClientId')]"
@@ -195,7 +225,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.43.8.12551",
-              "templateHash": "9321854580401747023"
+              "templateHash": "10538838582794943403"
             }
           },
           "parameters": {
@@ -269,6 +299,24 @@
               "type": "string",
               "metadata": {
                 "description": "Microsoft Graph property name for the External ID Verified ID expiration custom attribute."
+              }
+            },
+            "ciamStoreEventUrl": {
+              "type": "string",
+              "metadata": {
+                "description": "Optional CIAM Store signup event endpoint."
+              }
+            },
+            "ciamStoreConnectionId": {
+              "type": "string",
+              "metadata": {
+                "description": "Optional CIAM Store connection identifier for this travel application."
+              }
+            },
+            "ciamStoreEventSecret": {
+              "type": "securestring",
+              "metadata": {
+                "description": "Optional shared secret used to sign CIAM Store signup events."
               }
             },
             "entraClientSecret": {
@@ -382,6 +430,18 @@
                     {
                       "name": "GRAPH_VERIFIED_ID_EXPIRATION_ATTRIBUTE",
                       "value": "[parameters('graphVerifiedIdExpirationAttribute')]"
+                    },
+                    {
+                      "name": "CIAM_STORE_EVENT_URL",
+                      "value": "[parameters('ciamStoreEventUrl')]"
+                    },
+                    {
+                      "name": "CIAM_STORE_CONNECTION_ID",
+                      "value": "[parameters('ciamStoreConnectionId')]"
+                    },
+                    {
+                      "name": "CIAM_STORE_EVENT_SECRET",
+                      "value": "[parameters('ciamStoreEventSecret')]"
                     },
                     {
                       "name": "SESSION_SECRET",

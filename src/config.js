@@ -24,6 +24,17 @@ function loadConfig(environment = process.env) {
     throw new Error("SESSION_SECRET must be at least 32 characters long");
   }
 
+  const ciamStoreSettingNames = [
+    "CIAM_STORE_EVENT_URL",
+    "CIAM_STORE_CONNECTION_ID",
+    "CIAM_STORE_EVENT_SECRET",
+  ];
+  const configuredCiamStoreSettings = ciamStoreSettingNames.filter((name) => environment[name]);
+  if (configuredCiamStoreSettings.length > 0 && configuredCiamStoreSettings.length < ciamStoreSettingNames.length) {
+    const missingCiamStoreSettings = ciamStoreSettingNames.filter((name) => !environment[name]);
+    throw new Error(`Missing CIAM Store event settings: ${missingCiamStoreSettings.join(", ")}`);
+  }
+
   const tenantHost = `${environment.ENTRA_TENANT_SUBDOMAIN}.ciamlogin.com`;
   return {
     port: Number(environment.PORT || 3000),
@@ -45,6 +56,13 @@ function loadConfig(environment = process.env) {
     graphIsVerifiedAttribute: environment.GRAPH_IS_VERIFIED_ATTRIBUTE,
     graphLoyaltyAttribute: environment.GRAPH_LOYALTY_ATTRIBUTE,
     graphVerifiedIdExpirationAttribute: environment.GRAPH_VERIFIED_ID_EXPIRATION_ATTRIBUTE,
+    ciamStoreEvent: configuredCiamStoreSettings.length === ciamStoreSettingNames.length
+      ? {
+        url: environment.CIAM_STORE_EVENT_URL,
+        connectionId: environment.CIAM_STORE_CONNECTION_ID,
+        secret: environment.CIAM_STORE_EVENT_SECRET,
+      }
+      : null,
   };
 }
 

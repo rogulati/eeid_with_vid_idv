@@ -55,7 +55,14 @@ function setIdentityVerificationClaims(user, config, isVerified, expirationDate)
   user.claims[config.graphVerifiedIdExpirationAttribute] = expirationDate;
 }
 
-function createApp({ config, authService, graphService, verifiedIdService }) {
+function createApp({
+  config,
+  authService,
+  graphService,
+  verifiedIdService,
+  signupEventService = { enabled: false, async sendSignupCompleted() {} },
+  logger = console,
+}) {
   const app = express();
   const issuanceStatuses = new Map();
   const presentationStatuses = new Map();
@@ -109,16 +116,31 @@ function createApp({ config, authService, graphService, verifiedIdService }) {
       }
 
       const result = await authService.exchangeCode(request.query.code);
-      request.session.regenerate((error) => {
-        if (error) return next(error);
-        request.session.user = {
-          name: result.account?.name || result.idTokenClaims?.name || "traveler",
-          username: result.account?.username || result.idTokenClaims?.email || "",
-          idToken: result.idToken,
-          claims: result.idTokenClaims,
-        };
-        response.redirect("/profile");
+      const signupEventSent = request.session.signupEventSent === true;
+      await new Promise((resolve, reject) => {
+        request.session.regenerate((error) => {
+          if (error) reject(error);
+          else resolve();
+        });
       });
+      request.session.user = {
+        name: result.account?.name || result.idTokenClaims?.name || "traveler",
+        username: result.account?.username || result.idTokenClaims?.email || "",
+        idToken: result.idToken,
+        claims: result.idTokenClaims,
+      };
+      if (signupEventSent) request.session.signupEventSent = true;
+
+      if (signupEventService.enabled && !request.session.signupEventSent) {
+        try {
+          await signupEventService.sendSignupCompleted();
+          request.session.signupEventSent = true;
+        } catch {
+          logger.error("CIAM Store signup event delivery failed");
+        }
+      }
+
+      response.redirect("/profile");
     } catch (error) {
       next(error);
     }

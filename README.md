@@ -11,6 +11,7 @@ A Node.js travel demo for Azure App Service that combines Microsoft Entra Extern
 - Combined presentation of `VerifiedIdentity` and `NorthstarLoyalty`.
 - Claim extraction for loyalty email, loyalty number, and credential expiration.
 - Microsoft Graph lookup and update of External ID custom attributes.
+- Privacy-preserving signup/auth completion events sent server-to-server to CIAM Store.
 - Authenticated callbacks, CSRF protection, health checks, and focused tests.
 
 ## How it works
@@ -125,8 +126,15 @@ For manual deployment, create a Node 20+ Linux App Service and configure these a
 - `GRAPH_LOYALTY_ATTRIBUTE=extension_<app-id-without-hyphens>_loyalty`
 - `GRAPH_VERIFIED_ID_EXPIRATION_ATTRIBUTE=extension_<app-id-without-hyphens>_VerifiedIDExpirationDate`
 - `SESSION_SECRET=<strong-random-value-or-key-vault-reference>`
+- `CIAM_STORE_EVENT_URL=https://ciamstorepoc.azurewebsites.net/api/integrations/signup-events` (optional)
+- `CIAM_STORE_CONNECTION_ID=<ciam-store-connection-id>` (optional)
+- `CIAM_STORE_EVENT_SECRET=<shared-secret-or-key-vault-reference>` (optional)
 
 Add that exact HTTPS redirect URI to the app registration. Set the startup command to `npm start`, enable HTTPS-only and Always On, and configure `/health` as the health check path. For production, replace the default in-memory session store with a shared durable store and use a Key Vault reference for secrets.
+
+The three `CIAM_STORE_*` settings are optional as a group: leave all three empty to disable the integration, or configure all three. After a successful External ID callback, the app makes one two-second, non-retried POST attempt per browser session. The JSON body contains only `eventId`, `eventType`, `occurredAt`, `source`, and `connectionId`; it never includes account claims, tokens, request metadata, or other identity data. The request uses `X-CIAM-Timestamp`, `X-CIAM-Event-Id`, and `X-CIAM-Signature` headers. The lowercase hexadecimal HMAC SHA-256 signature is calculated over the UTF-8 bytes of `${timestamp}.${eventId}.${rawJsonBody}` and prefixed with `sha256=`. Delivery failures are logged without payloads or secrets and do not block login; a later authentication callback in the same browser session may retry.
+
+> POC limitation: `signup_completed` means the first successful authentication callback observed in a browser session. The travel app does not distinguish a newly registered account from a returning user sign-in.
 
 ## Security note
 

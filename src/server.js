@@ -3,6 +3,7 @@ const { createApp } = require("./app");
 const { createAuthService } = require("./auth");
 const { loadConfig } = require("./config");
 const { createGraphService } = require("./graph");
+const { createSignupEventService } = require("./signupEvent");
 const { createVerifiedIdService } = require("./verifiedId");
 
 const config = loadConfig();
@@ -10,6 +11,7 @@ const app = createApp({
   config,
   authService: createAuthService(config),
   graphService: createGraphService(config),
+  signupEventService: createSignupEventService({ config }),
   verifiedIdService: createVerifiedIdService(config),
 });
 

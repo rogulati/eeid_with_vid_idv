@@ -34,6 +34,16 @@ param graphLoyaltyAttribute string
 @description('Microsoft Graph property name for the External ID Verified ID expiration custom attribute.')
 param graphVerifiedIdExpirationAttribute string
 
+@description('Optional CIAM Store signup event endpoint.')
+param ciamStoreEventUrl string
+
+@description('Optional CIAM Store connection identifier for this travel application.')
+param ciamStoreConnectionId string
+
+@secure()
+@description('Optional shared secret used to sign CIAM Store signup events.')
+param ciamStoreEventSecret string
+
 @secure()
 @description('Microsoft Entra External ID application client secret.')
 param entraClientSecret string
@@ -127,6 +137,18 @@ resource app 'Microsoft.Web/sites@2024-11-01' = {
         {
           name: 'GRAPH_VERIFIED_ID_EXPIRATION_ATTRIBUTE'
           value: graphVerifiedIdExpirationAttribute
+        }
+        {
+          name: 'CIAM_STORE_EVENT_URL'
+          value: ciamStoreEventUrl
+        }
+        {
+          name: 'CIAM_STORE_CONNECTION_ID'
+          value: ciamStoreConnectionId
+        }
+        {
+          name: 'CIAM_STORE_EVENT_SECRET'
+          value: ciamStoreEventSecret
         }
         {
           name: 'SESSION_SECRET'

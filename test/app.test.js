@@ -15,7 +15,7 @@ const config = {
   graphVerifiedIdExpirationAttribute: "extension_test_VerifiedIDExpirationDate",
 };
 
-function testApp({ graphService, userClaims = {} } = {}) {
+function testApp({ graphService, userClaims = {}, signupEventService, logger } = {}) {
   return createApp({
     config,
     authService: {
@@ -53,6 +53,8 @@ function testApp({ graphService, userClaims = {} } = {}) {
       async updateIdentityVerification() {},
       async updateIdentityVerificationByEmail() {},
     },
+    signupEventService,
+    logger,
     verifiedIdService: {
       async createIssuanceRequest(user, options) {
         assert.equal(user.username, "avery@example.com");
@@ -124,6 +126,68 @@ test("callback establishes a session and displays the ID token", async () => {
 
   const home = await agent.get("/");
   assert.match(home.text, /href="\/profile">Identity<\/a>/);
+});
+
+test("successful auth callback sends one signup event per browser session", async () => {
+  let deliveries = 0;
+  const agent = request.agent(testApp({
+    signupEventService: {
+      enabled: true,
+      async sendSignupCompleted() {
+        deliveries += 1;
+      },
+    },
+  }));
+
+  await agent.get("/auth/signin");
+  assert.equal(
+    (await agent.get("/auth/redirect").query({ state: "valid-state", code: "auth-code" })).status,
+    302,
+  );
+  await agent.get("/auth/signin");
+  assert.equal(
+    (await agent.get("/auth/redirect").query({ state: "valid-state", code: "auth-code" })).status,
+    302,
+  );
+
+  assert.equal(deliveries, 1);
+});
+
+test("signup event failure does not block login and a later callback retries", async () => {
+  let deliveries = 0;
+  const logEntries = [];
+  const agent = request.agent(testApp({
+    signupEventService: {
+      enabled: true,
+      async sendSignupCompleted() {
+        deliveries += 1;
+        if (deliveries === 1) throw new Error("upstream unavailable");
+      },
+    },
+    logger: {
+      error(message) {
+        logEntries.push(message);
+      },
+    },
+  }));
+
+  await agent.get("/auth/signin");
+  const firstCallback = await agent
+    .get("/auth/redirect")
+    .set("user-agent", "private-agent")
+    .query({ state: "valid-state", code: "auth-code" });
+  assert.equal(firstCallback.status, 302);
+  assert.equal(firstCallback.headers.location, "/profile");
+  assert.equal((await agent.get("/profile")).status, 200);
+  assert.deepEqual(logEntries, ["CIAM Store signup event delivery failed"]);
+  assert.doesNotMatch(JSON.stringify(logEntries), /avery|customer-123|private-agent|header\.payload\.signature/);
+
+  await agent.get("/auth/signin");
+  const secondCallback = await agent
+    .get("/auth/redirect")
+    .query({ state: "valid-state", code: "auth-code" });
+  assert.equal(secondCallback.status, 302);
+  assert.equal(deliveries, 2);
 });
 
 test("authenticated user can create a loyalty card issuance request", async () => {

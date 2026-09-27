@@ -46,6 +46,16 @@ param graphLoyaltyAttribute string
 @description('Microsoft Graph property name for the External ID Verified ID expiration custom attribute.')
 param graphVerifiedIdExpirationAttribute string
 
+@description('Optional CIAM Store signup event endpoint.')
+param ciamStoreEventUrl string = ''
+
+@description('Optional CIAM Store connection identifier for this travel application.')
+param ciamStoreConnectionId string = ''
+
+@secure()
+@description('Optional shared secret used to sign CIAM Store signup events.')
+param ciamStoreEventSecret string = ''
+
 @secure()
 @minLength(32)
 @description('Random value used by Express to sign session cookies.')
@@ -68,6 +78,9 @@ module webApp 'webapp.bicep' = {
     appName: appName
     appServicePlanSku: appServicePlanSku
     branch: branch
+    ciamStoreConnectionId: ciamStoreConnectionId
+    ciamStoreEventSecret: ciamStoreEventSecret
+    ciamStoreEventUrl: ciamStoreEventUrl
     entraClientId: entraClientId
     entraClientSecret: entraClientSecret
     entraTenantId: entraTenantId
